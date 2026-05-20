@@ -97,8 +97,10 @@ def post_ai_volume_at_quality(quality: float) -> float:
 
 def apply_index_frame(ax: plt.Axes) -> None:
     """Apply bounded axes for the schematic index ranges."""
-    ax.set_xlim(-0.1, X_MAX + 0.4)
-    ax.set_ylim(-0.1, Y_MAX + 0.55)
+    ax.set_xlim(0, X_MAX + 0.4)
+    ax.set_ylim(0, Y_MAX + 0.25)
+    ax.spines["bottom"].set_position(("data", 0))
+    ax.spines["left"].set_position(("data", 0))
     ax.spines["bottom"].set_bounds(0, X_MAX)
     ax.spines["left"].set_bounds(0, Y_MAX)
     ax.set_xticks([])
@@ -207,7 +209,7 @@ def build_chart() -> plt.Figure:
         disciplined,
         TOL_INDIGO,
         "B. Disciplined volume\nmore volume, same quality",
-        (4.15, 7.65),
+        (3.95, 7.45),
         va="bottom",
     )
     draw_move(
@@ -216,7 +218,7 @@ def build_chart() -> plt.Figure:
         vibe,
         TOL_ROSE,
         "C. Vibe coding",
-        (7.4, 4.35),
+        (10.2, 3.0),
         lw=1.8,
     )
 
@@ -231,14 +233,13 @@ def build_chart() -> plt.Figure:
         linespacing=1.1,
     )
     ax.text(
-        0.85,
-        8.85,
-        "Pre-AI\nfrontier",
-        ha="right",
+        1.9,
+        2.6,
+        "Pre-AI frontier",
+        ha="left",
         va="center",
         fontsize=CLEAN_LABEL_SIZE,
         color=CLEAN_MEDIUM_GRAY,
-        linespacing=1.1,
     )
     ax.text(
         5.75,
@@ -250,22 +251,10 @@ def build_chart() -> plt.Figure:
         color=CLEAN_BLACK,
     )
     apply_index_frame(ax)
-    ax.set_title("AI shifted coding output more than coding quality", loc="left", pad=14)
     ax.set_xlabel("Output volume")
     ax.set_ylabel("Quality")
 
-    fig.text(
-        0.08,
-        0.03,
-        "Schematic values, not measured data. The geometry encodes the argument:\n"
-        "the quality ceiling barely moves, output expands far to the right, and the high-volume tail can keep deteriorating.",
-        ha="left",
-        va="bottom",
-        fontsize=CLEAN_SMALL_SIZE,
-        color=CLEAN_DARK_GRAY,
-    )
-
-    fig.tight_layout(rect=(0.02, 0.1, 0.99, 0.98))
+    fig.tight_layout(rect=(0.02, 0.02, 0.99, 0.99))
     return fig
 
 

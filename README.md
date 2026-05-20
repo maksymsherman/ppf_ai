@@ -14,6 +14,6 @@ The script writes:
 - `ai_coding_ppf.svg`
 - `ai_coding_ppf.png`
 
-The values are schematic indexes, not measured empirical data. The geometry is
-the claim: AI moves the volume frontier much farther than the quality ceiling,
-and the high-volume tail can keep pushing quality lower.
+This is a schematic diagram, not measured empirical data. The geometry is the
+claim: AI moves the volume frontier much farther than the quality ceiling, and
+the high-volume tail can keep pushing quality lower.
