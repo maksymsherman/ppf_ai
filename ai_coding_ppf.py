@@ -10,7 +10,6 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
 
 
@@ -29,15 +28,15 @@ CLEAN_TITLE_SIZE = 13
 CLEAN_LABEL_SIZE = 10
 CLEAN_SMALL_SIZE = 9
 
-X_MAX = 7.0
+X_MAX = 11.5
 Y_MAX = 10.0
 POST_CEILING = 9.45
-POST_CLIFF_LOW = 2.05
-POST_CENTER = 2.65
-POST_SCALE = 0.35
-TAIL_START = 3.6
-TAIL_DECAY = 0.32
-TAIL_EXPONENT = 1.25
+POST_CLIFF_LOW = 3.2
+POST_CENTER = 4.2
+POST_SCALE = 0.65
+TAIL_START = 6.0
+TAIL_DECAY = 0.16
+TAIL_EXPONENT = 1.1
 
 
 def configure_matplotlib() -> None:
@@ -72,7 +71,7 @@ def configure_matplotlib() -> None:
 def pre_ai_frontier() -> tuple[np.ndarray, np.ndarray]:
     """Return a conventional pre-AI concave tradeoff curve."""
     t = np.linspace(0, 1, 260)
-    x = 0.25 + 1.5 * t
+    x = 0.25 + 1.55 * t
     y = 9.2 - 6.8 * (t**1.85)
     return x, y
 
@@ -98,17 +97,13 @@ def post_ai_volume_at_quality(quality: float) -> float:
 
 def apply_index_frame(ax: plt.Axes) -> None:
     """Apply bounded axes for the schematic index ranges."""
-    ax.set_xlim(-0.05, X_MAX + 0.25)
+    ax.set_xlim(-0.1, X_MAX + 0.4)
     ax.set_ylim(-0.1, Y_MAX + 0.55)
     ax.spines["bottom"].set_bounds(0, X_MAX)
     ax.spines["left"].set_bounds(0, Y_MAX)
-    ax.xaxis.set_major_locator(ticker.FixedLocator([0, 1, 3, 5, 7]))
-    ax.xaxis.set_major_formatter(
-        ticker.FixedFormatter(["0", "1x", "3x", "5x", "7x"])
-    )
-    ax.yaxis.set_major_locator(ticker.FixedLocator([0, 2.5, 5, 7.5, 10]))
-    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%g"))
-    ax.tick_params(colors=CLEAN_BLACK, labelsize=CLEAN_SMALL_SIZE)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.tick_params(colors=CLEAN_BLACK)
 
 
 def draw_move(
@@ -173,7 +168,7 @@ def build_chart() -> plt.Figure:
 
     careful = (baseline_x, post_ai_quality(baseline_x))
     disciplined = (post_ai_volume_at_quality(baseline_y), baseline_y)
-    vibe = (5.5, post_ai_quality(5.5))
+    vibe = (10.0, post_ai_quality(10.0))
 
     fig, ax = plt.subplots(figsize=(9, 5.7))
 
@@ -212,7 +207,7 @@ def build_chart() -> plt.Figure:
         disciplined,
         TOL_INDIGO,
         "B. Disciplined volume\nmore volume, same quality",
-        (2.55, 7.65),
+        (4.15, 7.65),
         va="bottom",
     )
     draw_move(
@@ -220,8 +215,8 @@ def build_chart() -> plt.Figure:
         baseline,
         vibe,
         TOL_ROSE,
-        "C. Vibe coding\nhuge volume, quality collapses",
-        (4.35, 3.35),
+        "C. Vibe coding",
+        (7.4, 4.35),
         lw=1.8,
     )
 
@@ -236,7 +231,7 @@ def build_chart() -> plt.Figure:
         linespacing=1.1,
     )
     ax.text(
-        0.4,
+        0.45,
         8.85,
         "Pre-AI frontier",
         ha="left",
@@ -245,8 +240,8 @@ def build_chart() -> plt.Figure:
         color=CLEAN_MEDIUM_GRAY,
     )
     ax.text(
-        3.15,
-        5.7,
+        5.2,
+        5.55,
         "Post-AI frontier",
         ha="left",
         va="center",
@@ -255,14 +250,14 @@ def build_chart() -> plt.Figure:
     )
     apply_index_frame(ax)
     ax.set_title("AI shifted coding output more than coding quality", loc="left", pad=14)
-    ax.set_xlabel("Output volume (pre-AI baseline = 1x)")
-    ax.set_ylabel("Quality (schematic index)")
+    ax.set_xlabel("Output volume")
+    ax.set_ylabel("Quality")
 
     fig.text(
         0.08,
         0.03,
         "Schematic values, not measured data. The geometry encodes the argument:\n"
-        "the quality ceiling barely moves, output can jump 5x or more, and very high output can degrade quality further.",
+        "the quality ceiling barely moves, output expands far to the right, and the high-volume tail can keep deteriorating.",
         ha="left",
         va="bottom",
         fontsize=CLEAN_SMALL_SIZE,
