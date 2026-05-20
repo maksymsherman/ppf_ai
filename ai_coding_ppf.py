@@ -221,7 +221,7 @@ def build_chart() -> plt.Figure:
         baseline,
         vibe,
         TOL_ROSE,
-        "C. Vibe coder\ncommon down-right path",
+        "C. Vibe coding\nmuch more output, lower quality",
         (12.05, 3.38),
         lw=1.8,
     )
@@ -263,17 +263,6 @@ def build_chart() -> plt.Figure:
         fontsize=CLEAN_SMALL_SIZE,
         color=CLEAN_DARK_GRAY,
     )
-    ax.text(
-        10.15,
-        4.0,
-        "Not Pareto-improving:\nmore output, lower quality",
-        ha="left",
-        va="center",
-        fontsize=CLEAN_SMALL_SIZE,
-        color=CLEAN_BLACK,
-        linespacing=1.15,
-    )
-
     apply_index_frame(ax)
     ax.set_title("AI shifted coding output more than coding quality", loc="left", pad=14)
     ax.set_xlabel("Output volume (schematic index)")
@@ -283,7 +272,7 @@ def build_chart() -> plt.Figure:
         0.08,
         0.03,
         "Schematic values, not measured data. The geometry encodes the argument:\n"
-        "the quality ceiling barely moves, volume expands sharply, and the common move trades down for speed.",
+        "the quality ceiling barely moves, volume expands sharply, and many people choose speed over quality.",
         ha="left",
         va="bottom",
         fontsize=CLEAN_SMALL_SIZE,

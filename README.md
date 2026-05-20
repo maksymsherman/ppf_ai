@@ -16,4 +16,4 @@ The script writes:
 
 The values are schematic indexes, not measured empirical data. The geometry is
 the claim: AI moves the volume frontier much farther than the quality ceiling,
-and the common adoption path is down-right rather than Pareto-improving.
+and many people choose a large speed gain at a real quality cost.
