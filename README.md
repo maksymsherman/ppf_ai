@@ -16,4 +16,4 @@ The script writes:
 
 The values are schematic indexes, not measured empirical data. The geometry is
 the claim: AI moves the volume frontier much farther than the quality ceiling,
-and many people choose a large speed gain at a real quality cost.
+output can jump 5x or more, and very high output can keep pushing quality lower.

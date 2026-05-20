@@ -29,12 +29,15 @@ CLEAN_TITLE_SIZE = 13
 CLEAN_LABEL_SIZE = 10
 CLEAN_SMALL_SIZE = 9
 
-X_MAX = 15.5
+X_MAX = 7.0
 Y_MAX = 10.0
 POST_CEILING = 9.45
-POST_FLOOR = 2.05
-POST_CENTER = 7.1
-POST_SCALE = 0.72
+POST_CLIFF_LOW = 2.05
+POST_CENTER = 2.65
+POST_SCALE = 0.35
+TAIL_START = 3.6
+TAIL_DECAY = 0.32
+TAIL_EXPONENT = 1.25
 
 
 def configure_matplotlib() -> None:
@@ -69,7 +72,7 @@ def configure_matplotlib() -> None:
 def pre_ai_frontier() -> tuple[np.ndarray, np.ndarray]:
     """Return a conventional pre-AI concave tradeoff curve."""
     t = np.linspace(0, 1, 260)
-    x = 0.8 + 4.6 * t
+    x = 0.25 + 1.5 * t
     y = 9.2 - 6.8 * (t**1.85)
     return x, y
 
@@ -77,27 +80,32 @@ def pre_ai_frontier() -> tuple[np.ndarray, np.ndarray]:
 def post_ai_quality(x: float | np.ndarray) -> float | np.ndarray:
     """Return the post-AI frontier quality at a given output index."""
     x_array = np.asarray(x)
-    quality = POST_FLOOR + (POST_CEILING - POST_FLOOR) / (
+    cliff_quality = POST_CLIFF_LOW + (POST_CEILING - POST_CLIFF_LOW) / (
         1 + np.exp((x_array - POST_CENTER) / POST_SCALE)
     )
+    tail_drag = TAIL_DECAY * np.maximum(x_array - TAIL_START, 0) ** TAIL_EXPONENT
+    quality = np.maximum(cliff_quality - tail_drag, 0)
     if np.isscalar(x):
         return float(quality)
     return quality
 
 
 def post_ai_volume_at_quality(quality: float) -> float:
-    """Invert the post-AI frontier for a quality value above the floor."""
-    ratio = (POST_CEILING - POST_FLOOR) / (quality - POST_FLOOR) - 1
+    """Invert the post-AI frontier before the high-volume deterioration tail."""
+    ratio = (POST_CEILING - POST_CLIFF_LOW) / (quality - POST_CLIFF_LOW) - 1
     return POST_CENTER + POST_SCALE * np.log(ratio)
 
 
 def apply_index_frame(ax: plt.Axes) -> None:
     """Apply bounded axes for the schematic index ranges."""
-    ax.set_xlim(-0.2, X_MAX + 1.0)
+    ax.set_xlim(-0.05, X_MAX + 0.25)
     ax.set_ylim(-0.1, Y_MAX + 0.55)
     ax.spines["bottom"].set_bounds(0, X_MAX)
     ax.spines["left"].set_bounds(0, Y_MAX)
-    ax.xaxis.set_major_locator(ticker.FixedLocator([0, 5, 10, 15]))
+    ax.xaxis.set_major_locator(ticker.FixedLocator([0, 1, 3, 5, 7]))
+    ax.xaxis.set_major_formatter(
+        ticker.FixedFormatter(["0", "1x", "3x", "5x", "7x"])
+    )
     ax.yaxis.set_major_locator(ticker.FixedLocator([0, 2.5, 5, 7.5, 10]))
     ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%g"))
     ax.tick_params(colors=CLEAN_BLACK, labelsize=CLEAN_SMALL_SIZE)
@@ -156,16 +164,16 @@ def build_chart() -> plt.Figure:
     configure_matplotlib()
 
     pre_x, pre_y = pre_ai_frontier()
-    post_x = np.linspace(0.7, X_MAX, 520)
+    post_x = np.linspace(0.25, X_MAX, 520)
     post_y = post_ai_quality(post_x)
 
-    baseline_x = 3.2
+    baseline_x = 1.0
     baseline_y = float(np.interp(baseline_x, pre_x, pre_y))
     baseline = (baseline_x, baseline_y)
 
     careful = (baseline_x, post_ai_quality(baseline_x))
     disciplined = (post_ai_volume_at_quality(baseline_y), baseline_y)
-    vibe = (13.6, post_ai_quality(13.6))
+    vibe = (5.5, post_ai_quality(5.5))
 
     fig, ax = plt.subplots(figsize=(9, 5.7))
 
@@ -178,15 +186,6 @@ def build_chart() -> plt.Figure:
         zorder=1,
     )
     ax.plot(post_x, post_y, color=CLEAN_BLACK, linewidth=1.8, zorder=2)
-    ax.hlines(
-        POST_FLOOR,
-        8.9,
-        X_MAX,
-        color=CLEAN_REF_GRAY,
-        linestyle=(0, (2, 3)),
-        linewidth=0.9,
-        zorder=0,
-    )
 
     ax.scatter(
         [baseline_x],
@@ -204,7 +203,7 @@ def build_chart() -> plt.Figure:
         careful,
         TOL_GREEN,
         "A. Careful adopter\nsame volume, higher quality",
-        (3.75, 10.2),
+        (1.25, 10.2),
         va="top",
     )
     draw_move(
@@ -213,7 +212,7 @@ def build_chart() -> plt.Figure:
         disciplined,
         TOL_INDIGO,
         "B. Disciplined volume\nmore volume, same quality",
-        (6.75, 7.55),
+        (2.55, 7.65),
         va="bottom",
     )
     draw_move(
@@ -221,13 +220,13 @@ def build_chart() -> plt.Figure:
         baseline,
         vibe,
         TOL_ROSE,
-        "C. Vibe coding\nmuch more output, lower quality",
-        (12.05, 3.38),
+        "C. Vibe coding\nhuge volume, quality collapses",
+        (4.35, 3.35),
         lw=1.8,
     )
 
     ax.text(
-        baseline_x - 0.15,
+        baseline_x - 0.08,
         baseline_y - 0.45,
         "Pre-AI\nbaseline",
         ha="right",
@@ -237,7 +236,7 @@ def build_chart() -> plt.Figure:
         linespacing=1.1,
     )
     ax.text(
-        1.0,
+        0.4,
         8.85,
         "Pre-AI frontier",
         ha="left",
@@ -246,7 +245,7 @@ def build_chart() -> plt.Figure:
         color=CLEAN_MEDIUM_GRAY,
     )
     ax.text(
-        7.8,
+        3.15,
         5.7,
         "Post-AI frontier",
         ha="left",
@@ -254,25 +253,16 @@ def build_chart() -> plt.Figure:
         fontsize=CLEAN_LABEL_SIZE,
         color=CLEAN_BLACK,
     )
-    ax.text(
-        14.9,
-        POST_FLOOR + 0.25,
-        "Slop floor",
-        ha="right",
-        va="bottom",
-        fontsize=CLEAN_SMALL_SIZE,
-        color=CLEAN_DARK_GRAY,
-    )
     apply_index_frame(ax)
     ax.set_title("AI shifted coding output more than coding quality", loc="left", pad=14)
-    ax.set_xlabel("Output volume (schematic index)")
+    ax.set_xlabel("Output volume (pre-AI baseline = 1x)")
     ax.set_ylabel("Quality (schematic index)")
 
     fig.text(
         0.08,
         0.03,
         "Schematic values, not measured data. The geometry encodes the argument:\n"
-        "the quality ceiling barely moves, volume expands sharply, and many people choose speed over quality.",
+        "the quality ceiling barely moves, output can jump 5x or more, and very high output can degrade quality further.",
         ha="left",
         va="bottom",
         fontsize=CLEAN_SMALL_SIZE,
