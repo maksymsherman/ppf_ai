@@ -231,17 +231,18 @@ def build_chart() -> plt.Figure:
         linespacing=1.1,
     )
     ax.text(
-        0.45,
+        0.85,
         8.85,
-        "Pre-AI frontier",
-        ha="left",
+        "Pre-AI\nfrontier",
+        ha="right",
         va="center",
         fontsize=CLEAN_LABEL_SIZE,
         color=CLEAN_MEDIUM_GRAY,
+        linespacing=1.1,
     )
     ax.text(
-        5.2,
-        5.55,
+        5.75,
+        2.65,
         "Post-AI frontier",
         ha="left",
         va="center",
